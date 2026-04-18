@@ -152,33 +152,78 @@ test('editor interaction colors stay readable without breaking the austere palet
 
 test('token colors and semantic tokens match the balanced Black Metal syntax strategy', () => {
   const theme = readJson(themePath);
-
-  const comments = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Comments');
-  const keywords = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Keywords');
-  const strings = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Strings');
-  const constants = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Constants');
-  const functions = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Functions');
-  const types = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Types');
-  const markup = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Markup');
-
-  assert.deepEqual(comments.settings, { foreground: '#888888' });
-  assert.deepEqual(keywords.settings, { foreground: '#a06666' });
-  assert.deepEqual(strings.settings, { foreground: '#dd9999' });
-  assert.deepEqual(constants.settings, { foreground: '#dd9999' });
-  assert.deepEqual(functions.settings, { foreground: '#aaaaaa' });
-  assert.deepEqual(types.settings, { foreground: '#999999' });
-  assert.deepEqual(markup.settings, { foreground: '#c1c1c1' });
-
-  assert.deepEqual(theme.semanticTokenColors.parameter, {
-    foreground: '#c1c1c1'
+  const normalizeRule = (rule) => ({
+    name: rule.name,
+    scope: rule.scope,
+    settings: rule.settings
   });
-  assert.deepEqual(theme.semanticTokenColors.property, {
-    foreground: '#c1c1c1'
-  });
-  assert.deepEqual(theme.semanticTokenColors['variable.readonly'], {
-    foreground: '#dd9999'
-  });
-  assert.deepEqual(theme.semanticTokenColors['type.defaultLibrary'], {
-    foreground: '#aaaaaa'
+  const expectedTokenColors = [
+    {
+      name: 'Black Metal - Comments',
+      scope: ['comment', 'punctuation.definition.comment'],
+      settings: { foreground: '#888888' }
+    },
+    {
+      name: 'Black Metal - Keywords',
+      scope: ['keyword', 'storage', 'storage.type'],
+      settings: { foreground: '#a06666' }
+    },
+    {
+      name: 'Black Metal - Strings',
+      scope: ['string', 'string punctuation.section.embedded'],
+      settings: { foreground: '#dd9999' }
+    },
+    {
+      name: 'Black Metal - Constants',
+      scope: ['constant', 'constant.numeric', 'constant.language', 'constant.character.escape'],
+      settings: { foreground: '#dd9999' }
+    },
+    {
+      name: 'Black Metal - Variables',
+      scope: ['variable', 'variable.other.readwrite', 'variable.parameter'],
+      settings: { foreground: '#c1c1c1' }
+    },
+    {
+      name: 'Black Metal - Functions',
+      scope: ['entity.name.function', 'support.function', 'meta.function-call'],
+      settings: { foreground: '#aaaaaa' }
+    },
+    {
+      name: 'Black Metal - Types',
+      scope: ['entity.name.type', 'entity.name.class', 'support.type', 'storage.type.class'],
+      settings: { foreground: '#999999' }
+    },
+    {
+      name: 'Black Metal - Tags',
+      scope: ['entity.name.tag', 'entity.other.attribute-name'],
+      settings: { foreground: '#aaaaaa' }
+    },
+    {
+      name: 'Black Metal - Punctuation',
+      scope: ['punctuation', 'meta.brace', 'meta.delimiter'],
+      settings: { foreground: '#999999' }
+    },
+    {
+      name: 'Black Metal - Markup',
+      scope: ['markup.heading', 'markup.bold', 'markup.italic', 'markup.list'],
+      settings: { foreground: '#c1c1c1' }
+    }
+  ];
+
+  assert.equal(theme.tokenColors.length, expectedTokenColors.length);
+  assert.deepEqual(theme.tokenColors.map(normalizeRule), expectedTokenColors);
+  assert.deepEqual(theme.semanticTokenColors, {
+    parameter: {
+      foreground: '#c1c1c1'
+    },
+    property: {
+      foreground: '#c1c1c1'
+    },
+    'variable.readonly': {
+      foreground: '#dd9999'
+    },
+    'type.defaultLibrary': {
+      foreground: '#aaaaaa'
+    }
   });
 });
