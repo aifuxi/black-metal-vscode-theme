@@ -50,6 +50,7 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.deepEqual(pkg.categories, ['Themes']);
   assert.deepEqual(pkg.keywords, ['theme', 'dark theme', 'black metal', 'ghostty', 'vscode']);
   assert.equal(pkg.scripts['build:theme'], 'node scripts/build-theme.cjs');
+  assert.equal(pkg.scripts['vscode:prepublish'], 'npm run build:theme');
   assert.equal(pkg.scripts.test, 'node --test tests/theme.test.cjs');
   assert.equal(pkg.contributes.themes.length, 1);
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
@@ -390,6 +391,7 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(readme, /Black Metal/i);
   assert.match(readme, /Installation/i);
   assert.match(readme, /npm run build:theme/i);
+  assert.match(readme, /npm run vscode:prepublish/i);
   assert.match(readme, /edit `parts\/`/i);
   assert.match(readme, /terminal ANSI/i);
 
