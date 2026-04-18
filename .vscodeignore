@@ -3,4 +3,7 @@ docs
 parts
 scripts
 .superpowers
+.agents
+.claude
+skills-lock.json
 .gitignore

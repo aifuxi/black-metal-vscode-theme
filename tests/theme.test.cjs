@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const rootDir = path.resolve(__dirname, '..');
 const packagePath = path.join(rootDir, 'package.json');
+const vscodeIgnorePath = path.join(rootDir, '.vscodeignore');
 const partsBasePath = path.join(rootDir, 'parts', 'base.json');
 const requiredPartsPaths = [
   path.join(rootDir, 'parts', 'colors-editor.json'),
@@ -60,6 +61,14 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
   assert.equal(pkg.contributes.themes[0].uiTheme, 'vs-dark');
   assert.equal(pkg.contributes.themes[0].path, './themes/black-metal-color-theme.json');
+});
+
+test('packaging ignores internal agent and Claude scaffolding', () => {
+  const vscodeIgnore = fs.readFileSync(vscodeIgnorePath, 'utf8');
+
+  assert.match(vscodeIgnore, /^\.agents$/m);
+  assert.match(vscodeIgnore, /^\.claude$/m);
+  assert.match(vscodeIgnore, /^skills-lock\.json$/m);
 });
 
 test('project-local theme sources exist for the builder workflow', () => {
