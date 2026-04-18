@@ -31,6 +31,18 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.contributes.themes[0].path, './themes/black-metal-color-theme.json');
 });
 
+test('MIT package metadata is matched by a root LICENSE file', () => {
+  const pkg = readJson(packagePath);
+  const licensePath = path.join(rootDir, 'LICENSE');
+
+  assert.equal(pkg.license, 'MIT');
+  assert.ok(fs.existsSync(licensePath), 'LICENSE should exist when package.json declares MIT');
+
+  const license = fs.readFileSync(licensePath, 'utf8');
+
+  assert.match(license, /MIT License/);
+});
+
 test('theme file exists with the expected top-level shape', () => {
   assert.ok(fs.existsSync(themePath), 'theme JSON should exist');
 
@@ -147,7 +159,7 @@ test('editor interaction colors stay readable without breaking the austere palet
   assert.equal(color('button.foreground'), '#c1c1c1');
   assert.equal(color('button.hoverBackground'), '#171717');
   assert.equal(color('badge.background'), '#486e6f');
-  assert.equal(color('badge.foreground'), '#000000');
+  assert.equal(color('badge.foreground'), '#f0f0f0');
 });
 
 test('token colors and semantic tokens match the balanced Black Metal syntax strategy', () => {

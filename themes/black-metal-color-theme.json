@@ -46,7 +46,7 @@
     "button.foreground": "#c1c1c1",
     "button.hoverBackground": "#171717",
     "badge.background": "#486e6f",
-    "badge.foreground": "#000000",
+    "badge.foreground": "#f0f0f0",
     "widget.border": "#404040",
     "widget.shadow": "#000000",
     "activityBar.background": "#050505",
