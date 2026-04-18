@@ -40,6 +40,9 @@ test('theme file exists with the expected top-level shape', () => {
   assert.equal(theme.type, 'dark');
   assert.equal(typeof theme.colors, 'object');
   assert.ok(Object.keys(theme.colors).length > 0);
+  for (const [key, value] of Object.entries(theme.colors)) {
+    assert.equal(typeof value, 'string', `theme.colors.${key} should be a flat string value`);
+  }
   assert.deepEqual(theme.tokenColors, []);
   assert.deepEqual(theme.semanticTokenColors, {});
 });
@@ -115,6 +118,20 @@ test('editor interaction colors stay readable without breaking the austere palet
   assert.equal(color('editor.findMatchHighlightBackground'), '#a0666626');
   assert.equal(color('editorBracketMatch.background'), '#486e6f20');
   assert.equal(color('editorBracketMatch.border'), '#486e6f66');
+  assert.equal(color('editorLineNumber.foreground'), '#555555');
+  assert.equal(color('editorLineNumber.activeForeground'), '#999999');
+  assert.equal(color('editorIndentGuide.background1'), '#202020');
+  assert.equal(color('editorIndentGuide.activeBackground1'), '#404040');
+  assert.equal(color('editorWhitespace.foreground'), '#2a2a2a');
+  assert.equal(color('editorRuler.foreground'), '#202020');
+  assert.equal(color('editorHoverWidget.background'), '#050505');
+  assert.equal(color('editorHoverWidget.border'), '#404040');
+  assert.equal(color('peekView.border'), '#404040');
+  assert.equal(color('peekViewEditor.background'), '#050505');
+  assert.equal(color('peekViewResult.background'), '#0a0a0a');
+  assert.equal(color('peekViewResult.selectionBackground'), '#111111');
+  assert.equal(color('peekViewResult.selectionForeground'), '#c1c1c1');
+  assert.equal(color('peekViewTitle.background'), '#0f0f0f');
   assert.equal(color('diffEditor.insertedTextBackground'), '#486e6f22');
   assert.equal(color('diffEditor.removedTextBackground'), '#a0666622');
   assert.equal(color('editorError.foreground'), '#dd9999');
