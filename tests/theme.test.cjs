@@ -18,9 +18,13 @@ test('package metadata contributes the Black Metal theme', () => {
 
   assert.equal(pkg.name, 'black-metal-vscode-theme');
   assert.equal(pkg.displayName, 'Black Metal');
+  assert.equal(pkg.description, "A VS Code theme adapted from Ghostty's Black Metal palette.");
   assert.equal(pkg.version, '0.1.0');
+  assert.equal(pkg.publisher, 'local');
+  assert.equal(pkg.license, 'MIT');
   assert.equal(pkg.engines.vscode, '^1.90.0');
   assert.deepEqual(pkg.categories, ['Themes']);
+  assert.deepEqual(pkg.keywords, ['theme', 'dark theme', 'black metal', 'ghostty', 'vscode']);
   assert.equal(pkg.contributes.themes.length, 1);
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
   assert.equal(pkg.contributes.themes[0].uiTheme, 'vs-dark');
