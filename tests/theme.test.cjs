@@ -398,6 +398,13 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(readme, /npm run vscode:prepublish/i);
   assert.match(readme, /edit `parts\/`/i);
   assert.match(readme, /terminal ANSI/i);
+  assert.match(readme, /Release Publishing/i);
+  assert.match(readme, /GitHub Release/i);
+  assert.match(readme, /VSCE_PAT/i);
+  assert.match(readme, /BlackMetalTheme/i);
+  assert.match(readme, /package\.json/i);
+  assert.match(readme, /npx @vscode\/vsce package/i);
+  assert.match(readme, /npm test/i);
 
   assert.match(ignoreFile, /^tests$/m);
   assert.match(ignoreFile, /^docs$/m);
