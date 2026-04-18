@@ -1,1 +1,5 @@
 .superpowers/
+docs/superpowers/plans/
+node_modules/
+*.vsix
+.DS_Store

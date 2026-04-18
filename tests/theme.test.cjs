@@ -261,3 +261,23 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(ignoreFile, /^\.superpowers$/m);
   assert.match(ignoreFile, /^\.gitignore$/m);
 });
+
+test('repository metadata and gitignore entries support publishing from GitHub', () => {
+  const pkg = readJson(packagePath);
+  const gitignorePath = path.join(rootDir, '.gitignore');
+
+  assert.deepEqual(pkg.repository, {
+    type: 'git',
+    url: 'https://github.com/aifuxi/black-metal-vscode-theme.git'
+  });
+
+  assert.ok(fs.existsSync(gitignorePath), '.gitignore should exist');
+
+  const gitignore = fs.readFileSync(gitignorePath, 'utf8');
+
+  assert.match(gitignore, /^\.superpowers\/$/m);
+  assert.match(gitignore, /^docs\/superpowers\/plans\/$/m);
+  assert.match(gitignore, /^node_modules\/$/m);
+  assert.match(gitignore, /^\*\.vsix$/m);
+  assert.match(gitignore, /^\.DS_Store$/m);
+});
