@@ -5,6 +5,8 @@ const path = require('node:path');
 
 const rootDir = path.resolve(__dirname, '..');
 const packagePath = path.join(rootDir, 'package.json');
+const partsBasePath = path.join(rootDir, 'parts', 'base.json');
+const buildScriptPath = path.join(rootDir, 'scripts', 'build-theme.cjs');
 const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
 
 function readJson(filePath) {
@@ -29,6 +31,11 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
   assert.equal(pkg.contributes.themes[0].uiTheme, 'vs-dark');
   assert.equal(pkg.contributes.themes[0].path, './themes/black-metal-color-theme.json');
+});
+
+test('project-local theme sources exist for the builder workflow', () => {
+  assert.ok(fs.existsSync(partsBasePath), 'parts/base.json should exist');
+  assert.ok(fs.existsSync(buildScriptPath), 'scripts/build-theme.cjs should exist');
 });
 
 test('MIT package metadata is matched by a root LICENSE file', () => {
