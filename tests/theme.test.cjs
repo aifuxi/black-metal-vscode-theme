@@ -21,6 +21,20 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
+function withPatchedFile(filePath, replacement, callback) {
+  const original = fs.readFileSync(filePath, 'utf8');
+  const originalTheme = fs.readFileSync(themePath, 'utf8');
+
+  fs.writeFileSync(filePath, replacement);
+
+  try {
+    return callback();
+  } finally {
+    fs.writeFileSync(filePath, original);
+    fs.writeFileSync(themePath, originalTheme);
+  }
+}
+
 test('package metadata contributes the Black Metal theme', () => {
   assert.ok(fs.existsSync(packagePath), 'package.json should exist');
 
@@ -71,6 +85,84 @@ test('builder output stays in parity with the shipped theme file', () => {
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stderr, '');
   assert.deepEqual(JSON.parse(result.stdout), readJson(themePath));
+});
+
+test('builder fails when color parts define the same key twice', () => {
+  const duplicateColors = `${JSON.stringify({
+    foreground: '#123456'
+  }, null, 2)}\n`;
+
+  const result = withPatchedFile(requiredPartsPaths[1], duplicateColors, () =>
+    spawnSync(process.execPath, [buildScriptPath], {
+      encoding: 'utf8'
+    })
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(
+    result.stderr,
+    /Duplicate color key "foreground" found in .*colors-editor\.json and .*colors-ui\.json/
+  );
+});
+
+test('builder reports which source file is missing', () => {
+  const missingPath = requiredPartsPaths[0];
+  const renamedPath = `${missingPath}.tmp`;
+
+  fs.renameSync(missingPath, renamedPath);
+
+  try {
+    const result = spawnSync(process.execPath, [buildScriptPath], {
+      encoding: 'utf8'
+    });
+
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, new RegExp(`Missing required theme source: .*${path.basename(missingPath)}`));
+  } finally {
+    fs.renameSync(renamedPath, missingPath);
+  }
+});
+
+test('builder reports which source file has invalid JSON', () => {
+  const invalidJson = '{\n  "activityBar.background":\n';
+
+  const result = withPatchedFile(requiredPartsPaths[1], invalidJson, () =>
+    spawnSync(process.execPath, [buildScriptPath], {
+      encoding: 'utf8'
+    })
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, new RegExp(`Invalid JSON in theme source: .*${path.basename(requiredPartsPaths[1])}`));
+});
+
+test('builder reports write failures separately from source parsing', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '-e',
+      `
+        const fs = require('node:fs');
+        const script = require(${JSON.stringify(buildScriptPath)});
+        fs.writeFileSync = () => {
+          const error = new Error('disk full');
+          error.code = 'ENOSPC';
+          throw error;
+        };
+        script.main();
+      `
+    ],
+    {
+      encoding: 'utf8'
+    }
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /Failed to write theme output: .*disk full/);
 });
 
 test('MIT package metadata is matched by a root LICENSE file', () => {

@@ -11,19 +11,54 @@ const terminalColorsPath = path.join(rootDir, 'parts', 'colors-terminal.json');
 const tokensPath = path.join(rootDir, 'parts', 'tokens.json');
 const semanticPath = path.join(rootDir, 'parts', 'semantic.json');
 const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
+const colorPartPaths = [editorColorsPath, uiColorsPath, terminalColorsPath];
 
 function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  let source;
+
+  try {
+    source = fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    if (error && error.code === 'ENOENT') {
+      error.message = `Missing required theme source: ${filePath}`;
+    }
+
+    throw error;
+  }
+
+  try {
+    return JSON.parse(source);
+  } catch (error) {
+    error.message = `Invalid JSON in theme source: ${filePath}`;
+    throw error;
+  }
+}
+
+function mergeColorParts(filePaths) {
+  const mergedColors = {};
+  const keySources = new Map();
+
+  for (const filePath of filePaths) {
+    const colors = readJson(filePath);
+
+    for (const [key, value] of Object.entries(colors)) {
+      const existingSource = keySources.get(key);
+      if (existingSource) {
+        throw new Error(`Duplicate color key "${key}" found in ${existingSource} and ${filePath}`);
+      }
+
+      keySources.set(key, filePath);
+      mergedColors[key] = value;
+    }
+  }
+
+  return mergedColors;
 }
 
 function buildTheme() {
   return {
     ...readJson(basePath),
-    colors: {
-      ...readJson(editorColorsPath),
-      ...readJson(uiColorsPath),
-      ...readJson(terminalColorsPath)
-    },
+    colors: mergeColorParts(colorPartPaths),
     tokenColors: readJson(tokensPath),
     semanticTokenColors: readJson(semanticPath)
   };
@@ -34,15 +69,15 @@ function main() {
     const theme = buildTheme();
     const serializedTheme = `${JSON.stringify(theme, null, 2)}\n`;
 
-    fs.writeFileSync(themePath, serializedTheme);
-    process.stdout.write(serializedTheme);
-  } catch (error) {
-    if (error && error.code === 'ENOENT') {
-      console.error(`Missing required theme source: ${error.path}`);
-    } else {
-      console.error(`Invalid JSON in theme source: ${error.message}`);
+    try {
+      fs.writeFileSync(themePath, serializedTheme);
+      process.stdout.write(serializedTheme);
+    } catch (error) {
+      error.message = `Failed to write theme output: ${error.message}`;
+      throw error;
     }
-
+  } catch (error) {
+    console.error(error.message);
     process.exit(1);
   }
 }
