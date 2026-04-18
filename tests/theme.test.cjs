@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 
 const rootDir = path.resolve(__dirname, '..');
@@ -36,6 +37,16 @@ test('package metadata contributes the Black Metal theme', () => {
 test('project-local theme sources exist for the builder workflow', () => {
   assert.ok(fs.existsSync(partsBasePath), 'parts/base.json should exist');
   assert.ok(fs.existsSync(buildScriptPath), 'scripts/build-theme.cjs should exist');
+
+  const buildTheme = require(buildScriptPath);
+  assert.equal(typeof buildTheme.main, 'function');
+
+  const result = spawnSync(process.execPath, [buildScriptPath], {
+    encoding: 'utf8'
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Theme builder scaffold is ready\./);
 });
 
 test('MIT package metadata is matched by a root LICENSE file', () => {
