@@ -247,4 +247,5 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(ignoreFile, /^tests$/m);
   assert.match(ignoreFile, /^docs$/m);
   assert.match(ignoreFile, /^\.superpowers$/m);
+  assert.match(ignoreFile, /^\.gitignore$/m);
 });
