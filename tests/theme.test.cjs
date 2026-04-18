@@ -43,8 +43,8 @@ test('theme file exists with the expected top-level shape', () => {
   for (const [key, value] of Object.entries(theme.colors)) {
     assert.equal(typeof value, 'string', `theme.colors.${key} should be a flat string value`);
   }
-  assert.deepEqual(theme.tokenColors, []);
-  assert.deepEqual(theme.semanticTokenColors, {});
+  assert.ok(Array.isArray(theme.tokenColors));
+  assert.equal(typeof theme.semanticTokenColors, 'object');
 });
 
 test('core workbench and terminal colors follow the Black Metal palette', () => {
@@ -148,4 +148,37 @@ test('editor interaction colors stay readable without breaking the austere palet
   assert.equal(color('button.hoverBackground'), '#171717');
   assert.equal(color('badge.background'), '#486e6f');
   assert.equal(color('badge.foreground'), '#000000');
+});
+
+test('token colors and semantic tokens match the balanced Black Metal syntax strategy', () => {
+  const theme = readJson(themePath);
+
+  const comments = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Comments');
+  const keywords = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Keywords');
+  const strings = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Strings');
+  const constants = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Constants');
+  const functions = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Functions');
+  const types = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Types');
+  const markup = theme.tokenColors.find((rule) => rule.name === 'Black Metal - Markup');
+
+  assert.deepEqual(comments.settings, { foreground: '#888888' });
+  assert.deepEqual(keywords.settings, { foreground: '#a06666' });
+  assert.deepEqual(strings.settings, { foreground: '#dd9999' });
+  assert.deepEqual(constants.settings, { foreground: '#dd9999' });
+  assert.deepEqual(functions.settings, { foreground: '#aaaaaa' });
+  assert.deepEqual(types.settings, { foreground: '#999999' });
+  assert.deepEqual(markup.settings, { foreground: '#c1c1c1' });
+
+  assert.deepEqual(theme.semanticTokenColors.parameter, {
+    foreground: '#c1c1c1'
+  });
+  assert.deepEqual(theme.semanticTokenColors.property, {
+    foreground: '#c1c1c1'
+  });
+  assert.deepEqual(theme.semanticTokenColors['variable.readonly'], {
+    foreground: '#dd9999'
+  });
+  assert.deepEqual(theme.semanticTokenColors['type.defaultLibrary'], {
+    foreground: '#aaaaaa'
+  });
 });
