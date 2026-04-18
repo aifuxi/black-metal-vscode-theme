@@ -19,6 +19,23 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Validate release metadata
+        env:
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ "$RELEASE_PRERELEASE" = "true" ]; then
+            echo "Refusing to publish from a GitHub prerelease."
+            exit 1
+          fi
+
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          if [ "$RELEASE_TAG" != "$PACKAGE_VERSION" ]; then
+            echo "Release tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION."
+            exit 1
+          fi
+
       - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then

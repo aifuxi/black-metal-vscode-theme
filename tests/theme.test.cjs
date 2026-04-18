@@ -433,6 +433,10 @@ test('release publishing workflow triggers on release.published and uses VSCE_PA
   const workflow = fs.readFileSync(publishWorkflowPath, 'utf8');
 
   assert.match(workflow, /on:\s*\n\s*release:\s*\n\s*types:\s*\n\s*-\s*published/m);
+  assert.match(workflow, /Validate release metadata/);
+  assert.match(workflow, /github\.event\.release\.prerelease/);
+  assert.match(workflow, /github\.event\.release\.tag_name/);
+  assert.match(workflow, /package\.json/);
   assert.match(workflow, /VSCE_PAT/m);
   assert.match(workflow, /npm test/m);
   assert.match(workflow, /npx @vscode\/vsce publish/m);
