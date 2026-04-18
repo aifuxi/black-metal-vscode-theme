@@ -4,57 +4,6 @@
   "colors": {
     "foreground": "#c1c1c1",
     "focusBorder": "#486e6f",
-    "editor": {
-      "background": "#000000",
-      "foreground": "#c1c1c1",
-      "selectionBackground": "#c1c1c140",
-      "inactiveSelectionBackground": "#c1c1c126",
-      "selectionHighlightBackground": "#486e6f22",
-      "lineHighlightBackground": "#ffffff08",
-      "wordHighlightBackground": "#aaaaaa14",
-      "wordHighlightStrongBackground": "#aaaaaa22",
-      "findMatchBackground": "#a0666644",
-      "findMatchHighlightBackground": "#a0666626"
-    },
-    "editorCursor": {
-      "foreground": "#c1c1c1"
-    },
-    "editorBracketMatch": {
-      "background": "#486e6f20",
-      "border": "#486e6f66"
-    },
-    "diffEditor": {
-      "insertedTextBackground": "#486e6f22",
-      "removedTextBackground": "#a0666622"
-    },
-    "editorError": {
-      "foreground": "#dd9999"
-    },
-    "editorWarning": {
-      "foreground": "#a06666"
-    },
-    "editorInfo": {
-      "foreground": "#486e6f"
-    },
-    "input": {
-      "background": "#0f0f0f",
-      "foreground": "#c1c1c1",
-      "border": "#404040"
-    },
-    "dropdown": {
-      "background": "#0f0f0f",
-      "foreground": "#c1c1c1",
-      "border": "#404040"
-    },
-    "button": {
-      "background": "#111111",
-      "foreground": "#c1c1c1",
-      "hoverBackground": "#171717"
-    },
-    "badge": {
-      "background": "#486e6f",
-      "foreground": "#000000"
-    },
     "editor.background": "#000000",
     "editor.foreground": "#c1c1c1",
     "editorCursor.foreground": "#c1c1c1",
