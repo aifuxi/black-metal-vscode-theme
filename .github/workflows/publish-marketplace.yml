@@ -30,9 +30,10 @@ jobs:
           fi
 
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          NORMALIZED_RELEASE_TAG="${RELEASE_TAG#v}"
 
-          if [ "$RELEASE_TAG" != "$PACKAGE_VERSION" ]; then
-            echo "Release tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION."
+          if [ "$NORMALIZED_RELEASE_TAG" != "$PACKAGE_VERSION" ]; then
+            echo "Release tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION when normalized as $NORMALIZED_RELEASE_TAG."
             exit 1
           fi
 

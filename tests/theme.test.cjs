@@ -457,3 +457,19 @@ test('release publishing workflow triggers on release.published and uses VSCE_PA
   assert.match(workflow, /npm test/m);
   assert.match(workflow, /npx @vscode\/vsce publish/m);
 });
+
+test('release publishing workflow accepts both bare and v-prefixed release tags for the package version', () => {
+  const workflow = fs.readFileSync(publishWorkflowPath, 'utf8');
+
+  assert.match(workflow, /\$\{RELEASE_TAG#v\}/);
+  assert.match(workflow, /NORMALIZED_RELEASE_TAG="\$\{RELEASE_TAG#v\}"/);
+  assert.match(workflow, /if \[ "\$NORMALIZED_RELEASE_TAG" != "\$PACKAGE_VERSION" \]; then/);
+});
+
+test('release publishing docs name the GitHub repository secrets location and accepted tag formats', () => {
+  const readme = fs.readFileSync(path.join(rootDir, 'README.md'), 'utf8');
+
+  assert.match(readme, /GitHub repository secrets/i);
+  assert.match(readme, /`VSCE_PAT`/);
+  assert.match(readme, /`0\.1\.0` or `v0\.1\.0`/);
+});

@@ -24,9 +24,9 @@ A VS Code workbench theme adapted from Ghostty's Black Metal palette.
 
 ## Release Publishing
 
-- Create a GitHub Release from the `package.json` version.
+- Create a GitHub Release from the `package.json` version, using either `0.1.0` or `v0.1.0`.
 - Run `npm test` and `npx @vscode/vsce package` before publishing.
-- Set the `VSCE_PAT` secret on `BlackMetalTheme` so `npx @vscode/vsce publish` can upload the extension.
+- Set the `VSCE_PAT` secret in the GitHub repository secrets for `BlackMetalTheme` so `npx @vscode/vsce publish` can upload the extension.
 
 ## Palette Source
 
