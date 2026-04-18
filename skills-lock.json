@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "vscode-theme": {
+      "source": "jugyo/vscode-theme-skill",
+      "sourceType": "github",
+      "computedHash": "c4325278fe09eafdc19cc824c01ba3dd4fac9eea6b15905c745a04cc3c2f8ded"
+    }
+  }
+}

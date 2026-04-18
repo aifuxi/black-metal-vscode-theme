@@ -1,14 +1,38 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 
 const rootDir = path.resolve(__dirname, '..');
 const packagePath = path.join(rootDir, 'package.json');
+const partsBasePath = path.join(rootDir, 'parts', 'base.json');
+const requiredPartsPaths = [
+  path.join(rootDir, 'parts', 'colors-editor.json'),
+  path.join(rootDir, 'parts', 'colors-ui.json'),
+  path.join(rootDir, 'parts', 'colors-terminal.json'),
+  path.join(rootDir, 'parts', 'tokens.json'),
+  path.join(rootDir, 'parts', 'semantic.json')
+];
+const buildScriptPath = path.join(rootDir, 'scripts', 'build-theme.cjs');
 const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function withPatchedFile(filePath, replacement, callback) {
+  const original = fs.readFileSync(filePath, 'utf8');
+  const originalTheme = fs.readFileSync(themePath, 'utf8');
+
+  fs.writeFileSync(filePath, replacement);
+
+  try {
+    return callback();
+  } finally {
+    fs.writeFileSync(filePath, original);
+    fs.writeFileSync(themePath, originalTheme);
+  }
 }
 
 test('package metadata contributes the Black Metal theme', () => {
@@ -25,10 +49,123 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.engines.vscode, '^1.90.0');
   assert.deepEqual(pkg.categories, ['Themes']);
   assert.deepEqual(pkg.keywords, ['theme', 'dark theme', 'black metal', 'ghostty', 'vscode']);
+  assert.equal(pkg.scripts['build:theme'], 'node scripts/build-theme.cjs');
+  assert.equal(pkg.scripts['vscode:prepublish'], 'npm run build:theme');
+  assert.equal(pkg.scripts.test, 'node --test tests/theme.test.cjs');
   assert.equal(pkg.contributes.themes.length, 1);
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
   assert.equal(pkg.contributes.themes[0].uiTheme, 'vs-dark');
   assert.equal(pkg.contributes.themes[0].path, './themes/black-metal-color-theme.json');
+});
+
+test('project-local theme sources exist for the builder workflow', () => {
+  assert.ok(fs.existsSync(partsBasePath), 'parts/base.json should exist');
+  for (const requiredPartsPath of requiredPartsPaths) {
+    assert.ok(fs.existsSync(requiredPartsPath), `${path.relative(rootDir, requiredPartsPath)} should exist`);
+  }
+  assert.ok(fs.existsSync(buildScriptPath), 'scripts/build-theme.cjs should exist');
+
+  const buildTheme = require(buildScriptPath);
+  assert.equal(typeof buildTheme.main, 'function');
+
+  const result = spawnSync(process.execPath, [buildScriptPath], {
+    encoding: 'utf8'
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(
+    JSON.parse(result.stdout),
+    readJson(themePath)
+  );
+});
+
+test('builder output stays in parity with the shipped theme file', () => {
+  const result = spawnSync(process.execPath, [buildScriptPath], {
+    encoding: 'utf8'
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(JSON.parse(result.stdout), readJson(themePath));
+});
+
+test('builder fails when color parts define the same key twice', () => {
+  const duplicateColors = `${JSON.stringify({
+    foreground: '#123456'
+  }, null, 2)}\n`;
+
+  const result = withPatchedFile(requiredPartsPaths[1], duplicateColors, () =>
+    spawnSync(process.execPath, [buildScriptPath], {
+      encoding: 'utf8'
+    })
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(
+    result.stderr,
+    /Duplicate color key "foreground" found in .*colors-editor\.json and .*colors-ui\.json/
+  );
+});
+
+test('builder reports which source file is missing', () => {
+  const missingPath = requiredPartsPaths[0];
+  const renamedPath = `${missingPath}.tmp`;
+
+  fs.renameSync(missingPath, renamedPath);
+
+  try {
+    const result = spawnSync(process.execPath, [buildScriptPath], {
+      encoding: 'utf8'
+    });
+
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, new RegExp(`Missing required theme source: .*${path.basename(missingPath)}`));
+  } finally {
+    fs.renameSync(renamedPath, missingPath);
+  }
+});
+
+test('builder reports which source file has invalid JSON', () => {
+  const invalidJson = '{\n  "activityBar.background":\n';
+
+  const result = withPatchedFile(requiredPartsPaths[1], invalidJson, () =>
+    spawnSync(process.execPath, [buildScriptPath], {
+      encoding: 'utf8'
+    })
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, new RegExp(`Invalid JSON in theme source: .*${path.basename(requiredPartsPaths[1])}`));
+});
+
+test('builder reports write failures separately from source parsing', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '-e',
+      `
+        const fs = require('node:fs');
+        const script = require(${JSON.stringify(buildScriptPath)});
+        fs.writeFileSync = () => {
+          const error = new Error('disk full');
+          error.code = 'ENOSPC';
+          throw error;
+        };
+        script.main();
+      `
+    ],
+    {
+      encoding: 'utf8'
+    }
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /Failed to write theme output: .*disk full/);
 });
 
 test('MIT package metadata is matched by a root LICENSE file', () => {
@@ -253,11 +390,15 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(readme, /Ghostty/i);
   assert.match(readme, /Black Metal/i);
   assert.match(readme, /Installation/i);
-  assert.match(readme, /npm test/i);
+  assert.match(readme, /npm run build:theme/i);
+  assert.match(readme, /npm run vscode:prepublish/i);
+  assert.match(readme, /edit `parts\/`/i);
   assert.match(readme, /terminal ANSI/i);
 
   assert.match(ignoreFile, /^tests$/m);
   assert.match(ignoreFile, /^docs$/m);
+  assert.match(ignoreFile, /^parts$/m);
+  assert.match(ignoreFile, /^scripts$/m);
   assert.match(ignoreFile, /^\.superpowers$/m);
   assert.match(ignoreFile, /^\.gitignore$/m);
 });
