@@ -49,6 +49,8 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.engines.vscode, '^1.90.0');
   assert.deepEqual(pkg.categories, ['Themes']);
   assert.deepEqual(pkg.keywords, ['theme', 'dark theme', 'black metal', 'ghostty', 'vscode']);
+  assert.equal(pkg.scripts['build:theme'], 'node scripts/build-theme.cjs');
+  assert.equal(pkg.scripts.test, 'node --test tests/theme.test.cjs');
   assert.equal(pkg.contributes.themes.length, 1);
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
   assert.equal(pkg.contributes.themes[0].uiTheme, 'vs-dark');
@@ -387,11 +389,14 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(readme, /Ghostty/i);
   assert.match(readme, /Black Metal/i);
   assert.match(readme, /Installation/i);
-  assert.match(readme, /npm test/i);
+  assert.match(readme, /npm run build:theme/i);
+  assert.match(readme, /edit `parts\/`/i);
   assert.match(readme, /terminal ANSI/i);
 
   assert.match(ignoreFile, /^tests$/m);
   assert.match(ignoreFile, /^docs$/m);
+  assert.match(ignoreFile, /^parts$/m);
+  assert.match(ignoreFile, /^scripts$/m);
   assert.match(ignoreFile, /^\.superpowers$/m);
   assert.match(ignoreFile, /^\.gitignore$/m);
 });

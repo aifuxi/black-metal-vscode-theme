@@ -23,6 +23,7 @@
     "vscode"
   ],
   "scripts": {
+    "build:theme": "node scripts/build-theme.cjs",
     "test": "node --test tests/theme.test.cjs"
   },
   "contributes": {

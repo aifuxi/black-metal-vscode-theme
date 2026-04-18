@@ -17,6 +17,7 @@ A VS Code workbench theme adapted from Ghostty's Black Metal palette.
 
 ## Development
 
+- Edit `parts/`, then run `npm run build:theme` to regenerate `themes/black-metal-color-theme.json`
 - Run `npm test` to validate the extension metadata and theme mapping
 - Inspect the theme inside the Extension Development Host before packaging
 
