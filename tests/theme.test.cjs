@@ -7,6 +7,13 @@ const path = require('node:path');
 const rootDir = path.resolve(__dirname, '..');
 const packagePath = path.join(rootDir, 'package.json');
 const partsBasePath = path.join(rootDir, 'parts', 'base.json');
+const requiredPartsPaths = [
+  path.join(rootDir, 'parts', 'colors-editor.json'),
+  path.join(rootDir, 'parts', 'colors-ui.json'),
+  path.join(rootDir, 'parts', 'colors-terminal.json'),
+  path.join(rootDir, 'parts', 'tokens.json'),
+  path.join(rootDir, 'parts', 'semantic.json')
+];
 const buildScriptPath = path.join(rootDir, 'scripts', 'build-theme.cjs');
 const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
 
@@ -36,6 +43,9 @@ test('package metadata contributes the Black Metal theme', () => {
 
 test('project-local theme sources exist for the builder workflow', () => {
   assert.ok(fs.existsSync(partsBasePath), 'parts/base.json should exist');
+  for (const requiredPartsPath of requiredPartsPaths) {
+    assert.ok(fs.existsSync(requiredPartsPath), `${path.relative(rootDir, requiredPartsPath)} should exist`);
+  }
   assert.ok(fs.existsSync(buildScriptPath), 'scripts/build-theme.cjs should exist');
 
   const buildTheme = require(buildScriptPath);
@@ -46,7 +56,21 @@ test('project-local theme sources exist for the builder workflow', () => {
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Theme builder scaffold is ready\./);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(
+    JSON.parse(result.stdout),
+    readJson(themePath)
+  );
+});
+
+test('builder output stays in parity with the shipped theme file', () => {
+  const result = spawnSync(process.execPath, [buildScriptPath], {
+    encoding: 'utf8'
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(JSON.parse(result.stdout), readJson(themePath));
 });
 
 test('MIT package metadata is matched by a root LICENSE file', () => {

@@ -1,0 +1,20 @@
+{
+  "terminal.background": "#000000",
+  "terminal.foreground": "#c1c1c1",
+  "terminal.ansiBlack": "#000000",
+  "terminal.ansiRed": "#486e6f",
+  "terminal.ansiGreen": "#dd9999",
+  "terminal.ansiYellow": "#a06666",
+  "terminal.ansiBlue": "#888888",
+  "terminal.ansiMagenta": "#999999",
+  "terminal.ansiCyan": "#aaaaaa",
+  "terminal.ansiWhite": "#c1c1c1",
+  "terminal.ansiBrightBlack": "#404040",
+  "terminal.ansiBrightRed": "#486e6f",
+  "terminal.ansiBrightGreen": "#dd9999",
+  "terminal.ansiBrightYellow": "#a06666",
+  "terminal.ansiBrightBlue": "#888888",
+  "terminal.ansiBrightMagenta": "#999999",
+  "terminal.ansiBrightCyan": "#aaaaaa",
+  "terminal.ansiBrightWhite": "#c1c1c1"
+}

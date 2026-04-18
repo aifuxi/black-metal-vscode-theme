@@ -1,0 +1,14 @@
+{
+  "parameter": {
+    "foreground": "#c1c1c1"
+  },
+  "property": {
+    "foreground": "#c1c1c1"
+  },
+  "variable.readonly": {
+    "foreground": "#dd9999"
+  },
+  "type.defaultLibrary": {
+    "foreground": "#aaaaaa"
+  }
+}
