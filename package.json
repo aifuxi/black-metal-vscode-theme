@@ -1,22 +1,12 @@
 {
   "name": "black-metal-vscode-theme",
   "displayName": "Black Metal",
-  "description": "A VS Code theme adapted from Ghostty's Black Metal palette.",
   "version": "0.1.0",
-  "publisher": "local",
-  "license": "MIT",
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
     "Themes"
-  ],
-  "keywords": [
-    "theme",
-    "dark theme",
-    "black metal",
-    "ghostty",
-    "vscode"
   ],
   "scripts": {
     "test": "node --test tests/theme.test.cjs"
