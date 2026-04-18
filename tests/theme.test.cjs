@@ -227,3 +227,24 @@ test('token colors and semantic tokens match the balanced Black Metal syntax str
     }
   });
 });
+
+test('documentation and packaging files describe and ship the theme cleanly', () => {
+  const readmePath = path.join(rootDir, 'README.md');
+  const ignorePath = path.join(rootDir, '.vscodeignore');
+
+  assert.ok(fs.existsSync(readmePath), 'README.md should exist');
+  assert.ok(fs.existsSync(ignorePath), '.vscodeignore should exist');
+
+  const readme = fs.readFileSync(readmePath, 'utf8');
+  const ignoreFile = fs.readFileSync(ignorePath, 'utf8');
+
+  assert.match(readme, /Ghostty/i);
+  assert.match(readme, /Black Metal/i);
+  assert.match(readme, /Installation/i);
+  assert.match(readme, /npm test/i);
+  assert.match(readme, /terminal ANSI/i);
+
+  assert.match(ignoreFile, /^tests$/m);
+  assert.match(ignoreFile, /^docs$/m);
+  assert.match(ignoreFile, /^\.superpowers$/m);
+});
