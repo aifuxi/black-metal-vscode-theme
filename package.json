@@ -3,7 +3,7 @@
   "displayName": "Black Metal",
   "description": "A VS Code theme adapted from Ghostty's Black Metal palette.",
   "version": "0.1.0",
-  "publisher": "local",
+  "publisher": "BlackMetalTheme",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -24,8 +24,13 @@
   ],
   "scripts": {
     "build:theme": "node scripts/build-theme.cjs",
+    "package:vsix": "vsce package",
+    "publish:vsce": "vsce publish",
     "vscode:prepublish": "npm run build:theme",
     "test": "node --test tests/theme.test.cjs"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.6.2"
   },
   "contributes": {
     "themes": [
