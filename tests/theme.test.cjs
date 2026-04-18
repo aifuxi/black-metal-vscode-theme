@@ -16,6 +16,7 @@ const requiredPartsPaths = [
 ];
 const buildScriptPath = path.join(rootDir, 'scripts', 'build-theme.cjs');
 const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
+const publishWorkflowPath = path.join(rootDir, '.github', 'workflows', 'publish-marketplace.yml');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -424,4 +425,15 @@ test('repository metadata and gitignore entries support publishing from GitHub',
   assert.match(gitignore, /^node_modules\/$/m);
   assert.match(gitignore, /^\*\.vsix$/m);
   assert.match(gitignore, /^\.DS_Store$/m);
+});
+
+test('release publishing workflow triggers on release.published and uses VSCE_PAT, npm test, and vsce publish', () => {
+  assert.ok(fs.existsSync(publishWorkflowPath), '.github/workflows/publish-marketplace.yml should exist');
+
+  const workflow = fs.readFileSync(publishWorkflowPath, 'utf8');
+
+  assert.match(workflow, /on:\s*\n\s*release:\s*\n\s*types:\s*\n\s*-\s*published/m);
+  assert.match(workflow, /VSCE_PAT/m);
+  assert.match(workflow, /npm test/m);
+  assert.match(workflow, /npx @vscode\/vsce publish/m);
 });
