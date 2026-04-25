@@ -24,6 +24,7 @@
   ],
   "scripts": {
     "build:theme": "node scripts/build-theme.cjs",
+    "package:vsix": "vsce package",
     "vscode:prepublish": "npm run build:theme",
     "test": "node --test tests/theme.test.cjs"
   },

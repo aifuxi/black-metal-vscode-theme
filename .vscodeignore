@@ -4,3 +4,12 @@ parts
 scripts
 .superpowers
 .gitignore
+.git
+.github
+.agents
+.claude
+.worktrees
+node_modules
+package-lock.json
+skills-lock.json
+*.vsix
