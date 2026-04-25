@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const rootDir = path.resolve(__dirname, '..');
 const packagePath = path.join(rootDir, 'package.json');
+const vscodeIgnorePath = path.join(rootDir, '.vscodeignore');
 const partsBasePath = path.join(rootDir, 'parts', 'base.json');
 const requiredPartsPaths = [
   path.join(rootDir, 'parts', 'colors-editor.json'),
@@ -16,6 +17,7 @@ const requiredPartsPaths = [
 ];
 const buildScriptPath = path.join(rootDir, 'scripts', 'build-theme.cjs');
 const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
+const publishWorkflowPath = path.join(rootDir, '.github', 'workflows', 'publish-marketplace.yml');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -44,18 +46,29 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.displayName, 'Black Metal');
   assert.equal(pkg.description, "A VS Code theme adapted from Ghostty's Black Metal palette.");
   assert.equal(pkg.version, '0.1.0');
-  assert.equal(pkg.publisher, 'local');
+  assert.equal(pkg.publisher, 'BlackMetalTheme');
   assert.equal(pkg.license, 'MIT');
   assert.equal(pkg.engines.vscode, '^1.90.0');
   assert.deepEqual(pkg.categories, ['Themes']);
   assert.deepEqual(pkg.keywords, ['theme', 'dark theme', 'black metal', 'ghostty', 'vscode']);
   assert.equal(pkg.scripts['build:theme'], 'node scripts/build-theme.cjs');
   assert.equal(pkg.scripts['vscode:prepublish'], 'npm run build:theme');
+  assert.equal(pkg.scripts['package:vsix'], 'vsce package');
+  assert.equal(pkg.scripts['publish:vsce'], 'vsce publish');
   assert.equal(pkg.scripts.test, 'node --test tests/theme.test.cjs');
+  assert.equal(pkg.devDependencies['@vscode/vsce'], '^3.6.2');
   assert.equal(pkg.contributes.themes.length, 1);
   assert.equal(pkg.contributes.themes[0].label, 'Black Metal');
   assert.equal(pkg.contributes.themes[0].uiTheme, 'vs-dark');
   assert.equal(pkg.contributes.themes[0].path, './themes/black-metal-color-theme.json');
+});
+
+test('packaging ignores internal agent and Claude scaffolding', () => {
+  const vscodeIgnore = fs.readFileSync(vscodeIgnorePath, 'utf8');
+
+  assert.match(vscodeIgnore, /^\.agents$/m);
+  assert.match(vscodeIgnore, /^\.claude$/m);
+  assert.match(vscodeIgnore, /^skills-lock\.json$/m);
 });
 
 test('project-local theme sources exist for the builder workflow', () => {
@@ -394,6 +407,13 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(readme, /npm run vscode:prepublish/i);
   assert.match(readme, /edit `parts\/`/i);
   assert.match(readme, /terminal ANSI/i);
+  assert.match(readme, /Release Publishing/i);
+  assert.match(readme, /GitHub Release/i);
+  assert.match(readme, /VSCE_PAT/i);
+  assert.match(readme, /BlackMetalTheme/i);
+  assert.match(readme, /package\.json/i);
+  assert.match(readme, /npx @vscode\/vsce package/i);
+  assert.match(readme, /npm test/i);
 
   assert.match(ignoreFile, /^tests$/m);
   assert.match(ignoreFile, /^docs$/m);
@@ -421,4 +441,35 @@ test('repository metadata and gitignore entries support publishing from GitHub',
   assert.match(gitignore, /^node_modules\/$/m);
   assert.match(gitignore, /^\*\.vsix$/m);
   assert.match(gitignore, /^\.DS_Store$/m);
+});
+
+test('release publishing workflow triggers on release.published and uses VSCE_PAT, npm test, and vsce publish', () => {
+  assert.ok(fs.existsSync(publishWorkflowPath), '.github/workflows/publish-marketplace.yml should exist');
+
+  const workflow = fs.readFileSync(publishWorkflowPath, 'utf8');
+
+  assert.match(workflow, /on:\s*\n\s*release:\s*\n\s*types:\s*\n\s*-\s*published/m);
+  assert.match(workflow, /Validate release metadata/);
+  assert.match(workflow, /github\.event\.release\.prerelease/);
+  assert.match(workflow, /github\.event\.release\.tag_name/);
+  assert.match(workflow, /package\.json/);
+  assert.match(workflow, /VSCE_PAT/m);
+  assert.match(workflow, /npm test/m);
+  assert.match(workflow, /npx @vscode\/vsce publish/m);
+});
+
+test('release publishing workflow accepts both bare and v-prefixed release tags for the package version', () => {
+  const workflow = fs.readFileSync(publishWorkflowPath, 'utf8');
+
+  assert.match(workflow, /\$\{RELEASE_TAG#v\}/);
+  assert.match(workflow, /NORMALIZED_RELEASE_TAG="\$\{RELEASE_TAG#v\}"/);
+  assert.match(workflow, /if \[ "\$NORMALIZED_RELEASE_TAG" != "\$PACKAGE_VERSION" \]; then/);
+});
+
+test('release publishing docs name the GitHub repository secrets location and accepted tag formats', () => {
+  const readme = fs.readFileSync(path.join(rootDir, 'README.md'), 'utf8');
+
+  assert.match(readme, /GitHub repository secrets/i);
+  assert.match(readme, /`VSCE_PAT`/);
+  assert.match(readme, /`0\.1\.0` or `v0\.1\.0`/);
 });
