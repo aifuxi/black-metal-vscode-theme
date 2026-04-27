@@ -2,6 +2,8 @@
 
 A VS Code workbench theme adapted from Ghostty's Black Metal palette.
 
+![Preview](./assets/preview.avif)
+
 ## Design Notes
 
 - Keeps the chrome almost entirely black and gray
