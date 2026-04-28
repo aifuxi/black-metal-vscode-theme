@@ -19,7 +19,7 @@ parts/                         # Hand-edited theme source files (ONLY edit these
 scripts/
   build-theme.cjs              # Node build script: merges parts/ → themes/black-metal-color-theme.json
 tests/
-  theme.test.cjs               # Node test suite (--test runner)
+  theme.test.js                # Vitest test suite
 themes/
   black-metal-color-theme.json # Generated output (committed but do NOT edit directly)
 assets/
@@ -45,7 +45,8 @@ docs/superpowers/specs/        # Design specifications
 | `npm run lint:fix`     | Run oxlint with auto-fix                                                       |
 | `npm run fmt`          | Format code with oxfmt                                                         |
 | `npm run fmt:check`    | Check formatting without writing (for CI)                                      |
-| `npm test`             | Run full test suite (metadata, build integrity, palette contract)              |
+| `npm test`             | Run vitest suite (metadata, build integrity, palette contract)                 |
+| `npm run test:watch`   | Run vitest in watch mode (development)                                         |
 | `npm run package:vsix` | Build `.vsix` package (runs `vscode:prepublish` → `build:theme` automatically) |
 | `npm run publish:vsce` | Publish to VS Code Marketplace (requires `VSCE_PAT` env var)                   |
 
@@ -63,9 +64,9 @@ docs/superpowers/specs/        # Design specifications
 
 - **Runtime**: Node.js (no transpilation, no TypeScript)
 - **Lock file**: `bun.lock` (Bun lockfile format, not npm)
-- **Dev dependency**: `@vscode/vsce ^3.6.2` (packaging/publishing)
+- **Dev dependencies**: `@vscode/vsce ^3.6.2` (packaging/publishing), `vitest ^4.1.5` (test framework)
 - **Engine requirement**: VS Code `^1.90.0`
-- **Test runner**: `node --test` (built-in Node test runner, no framework)
+- **Test runner**: `vitest` (fast Vite-native test framework)
 - **Build script**: `scripts/build-theme.cjs` — CommonJS module using `node:fs` and `node:path`
 
 The build script:
@@ -112,7 +113,7 @@ Run `npm run lint` and `npm run fmt` before committing. The linter and formatter
 
 ## Test Suite
 
-Run with `npm test` (or `node --test tests/theme.test.cjs`). Tests validate:
+Run with `npm test` (or `vitest run`). Tests validate:
 
 - **Package metadata**: name, display name, publisher (`fu-chen`), version, engine, categories, keywords, scripts, contributes theme entry
 - **Build integrity**: parts/ files exist, builder runs successfully, output matches shipped theme

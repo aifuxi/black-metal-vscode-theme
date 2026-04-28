@@ -17,6 +17,7 @@
     "max-statements": "off",
     "no-magic-numbers": "off",
     "sort-keys": "off",
+    "sort-imports": "off",
     "no-ternary": "off",
     "prefer-destructuring": "off",
     "unicorn/no-null": "off",

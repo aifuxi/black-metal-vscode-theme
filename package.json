@@ -31,12 +31,14 @@
     "package:vsix": "vsce package",
     "publish:vsce": "vsce publish",
     "vscode:prepublish": "npm run build:theme",
-    "test": "node --test tests/theme.test.cjs"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@vscode/vsce": "^3.6.2",
     "oxfmt": "^0.47.0",
-    "oxlint": "^1.62.0"
+    "oxlint": "^1.62.0",
+    "vitest": "^4.1.5"
   },
   "contributes": {
     "themes": [
