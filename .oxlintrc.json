@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["unicorn", "node"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn",
+    "style": "warn"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-console": "off",
+    "eqeqeq": ["error", "always"],
+    "no-debugger": "error",
+    "func-style": "off",
+    "init-declarations": "off",
+    "max-statements": "off",
+    "no-magic-numbers": "off",
+    "sort-keys": "off",
+    "no-ternary": "off",
+    "prefer-destructuring": "off",
+    "unicorn/no-null": "off",
+    "unicorn/switch-case-braces": "off",
+    "unicorn/consistent-existence-index-check": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "node/global-require": "off"
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    "themes/**",
+    "parts/**",
+    "assets/**",
+    ".worktrees/**",
+    ".agents/**",
+    ".claude/**"
+  ]
+}

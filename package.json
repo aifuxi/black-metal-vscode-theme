@@ -24,13 +24,19 @@
   ],
   "scripts": {
     "build:theme": "node scripts/build-theme.cjs",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "package:vsix": "vsce package",
     "publish:vsce": "vsce publish",
     "vscode:prepublish": "npm run build:theme",
     "test": "node --test tests/theme.test.cjs"
   },
   "devDependencies": {
-    "@vscode/vsce": "^3.6.2"
+    "@vscode/vsce": "^3.6.2",
+    "oxfmt": "^0.47.0",
+    "oxlint": "^1.62.0"
   },
   "contributes": {
     "themes": [

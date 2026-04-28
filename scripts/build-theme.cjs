@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require("node:fs");
+const path = require("node:path");
 
-const rootDir = path.resolve(__dirname, '..');
-const basePath = path.join(rootDir, 'parts', 'base.json');
-const editorColorsPath = path.join(rootDir, 'parts', 'colors-editor.json');
-const uiColorsPath = path.join(rootDir, 'parts', 'colors-ui.json');
-const terminalColorsPath = path.join(rootDir, 'parts', 'colors-terminal.json');
-const tokensPath = path.join(rootDir, 'parts', 'tokens.json');
-const semanticPath = path.join(rootDir, 'parts', 'semantic.json');
-const themePath = path.join(rootDir, 'themes', 'black-metal-color-theme.json');
+const rootDir = path.resolve(__dirname, "..");
+const basePath = path.join(rootDir, "parts", "base.json");
+const editorColorsPath = path.join(rootDir, "parts", "colors-editor.json");
+const uiColorsPath = path.join(rootDir, "parts", "colors-ui.json");
+const terminalColorsPath = path.join(rootDir, "parts", "colors-terminal.json");
+const tokensPath = path.join(rootDir, "parts", "tokens.json");
+const semanticPath = path.join(rootDir, "parts", "semantic.json");
+const themePath = path.join(rootDir, "themes", "black-metal-color-theme.json");
 const colorPartPaths = [editorColorsPath, uiColorsPath, terminalColorsPath];
 
 function readJson(filePath) {
   let source;
 
   try {
-    source = fs.readFileSync(filePath, 'utf8');
+    source = fs.readFileSync(filePath, "utf8");
   } catch (error) {
-    if (error && error.code === 'ENOENT') {
+    if (error && error.code === "ENOENT") {
       error.message = `Missing required theme source: ${filePath}`;
     }
 
@@ -60,7 +60,7 @@ function buildTheme() {
     ...readJson(basePath),
     colors: mergeColorParts(colorPartPaths),
     tokenColors: readJson(tokensPath),
-    semanticTokenColors: readJson(semanticPath)
+    semanticTokenColors: readJson(semanticPath),
   };
 }
 
@@ -88,5 +88,5 @@ if (require.main === module) {
 
 module.exports = {
   buildTheme,
-  main
+  main,
 };

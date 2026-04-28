@@ -35,12 +35,12 @@ docs/superpowers/specs/        # Design specifications
 
 ## Key Commands
 
-| Command | What it does |
-|---------|-------------|
-| `npm run build:theme` | Merge `parts/` into `themes/black-metal-color-theme.json` |
-| `npm test` | Run full test suite (metadata, build integrity, palette contract) |
+| Command                | What it does                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `npm run build:theme`  | Merge `parts/` into `themes/black-metal-color-theme.json`                      |
+| `npm test`             | Run full test suite (metadata, build integrity, palette contract)              |
 | `npm run package:vsix` | Build `.vsix` package (runs `vscode:prepublish` → `build:theme` automatically) |
-| `npm run publish:vsce` | Publish to VS Code Marketplace (requires `VSCE_PAT` env var) |
+| `npm run publish:vsce` | Publish to VS Code Marketplace (requires `VSCE_PAT` env var)                   |
 
 ## Development Workflow
 
@@ -62,6 +62,7 @@ docs/superpowers/specs/        # Design specifications
 - **Build script**: `scripts/build-theme.cjs` — CommonJS module using `node:fs` and `node:path`
 
 The build script:
+
 1. Reads `parts/base.json` for name/type metadata
 2. Merges `parts/colors-editor.json`, `parts/colors-ui.json`, `parts/colors-terminal.json` into a single `colors` object (fails on duplicate keys)
 3. Reads `parts/tokens.json` for `tokenColors`
@@ -70,20 +71,20 @@ The build script:
 
 ## Palette Reference
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| Base background | `#000000` | Editor, terminal, true black |
-| Surface 1 | `#050505` | Activity bar, sidebar, panel, hover widget |
-| Surface 2 | `#0f0f0f` | Status bar, title bar, input, dropdown |
-| Surface 3 | `#101010`–`#171717` | Active tab, list hover, button hover |
-| Borders | `#404040` | Separators, inactive indent guides |
-| Primary foreground | `#c1c1c1` | Default text, cursor |
-| Secondary text | `#aaaaaa` | Functions, tags, sidebar text |
-| Muted text | `#999999` | Types, punctuation, inactive line numbers |
-| Very muted | `#888888` | Comments, inactive UI text |
-| Structural accent | `#486e6f` | Focus borders, active indicators, bracket match, info |
-| Warm accent | `#dd9999` | Strings, constants, errors, terminal green |
-| Deep warm accent | `#a06666` | Keywords, warnings, terminal yellow, find matches |
+| Token              | Hex                 | Usage                                                 |
+| ------------------ | ------------------- | ----------------------------------------------------- |
+| Base background    | `#000000`           | Editor, terminal, true black                          |
+| Surface 1          | `#050505`           | Activity bar, sidebar, panel, hover widget            |
+| Surface 2          | `#0f0f0f`           | Status bar, title bar, input, dropdown                |
+| Surface 3          | `#101010`–`#171717` | Active tab, list hover, button hover                  |
+| Borders            | `#404040`           | Separators, inactive indent guides                    |
+| Primary foreground | `#c1c1c1`           | Default text, cursor                                  |
+| Secondary text     | `#aaaaaa`           | Functions, tags, sidebar text                         |
+| Muted text         | `#999999`           | Types, punctuation, inactive line numbers             |
+| Very muted         | `#888888`           | Comments, inactive UI text                            |
+| Structural accent  | `#486e6f`           | Focus borders, active indicators, bracket match, info |
+| Warm accent        | `#dd9999`           | Strings, constants, errors, terminal green            |
+| Deep warm accent   | `#a06666`           | Keywords, warnings, terminal yellow, find matches     |
 
 ## Release Publishing
 
