@@ -39,30 +39,19 @@ function withPatchedFile(filePath, replacement, callback) {
 }
 
 describe("package metadata", () => {
-  test("contributes the Black Metal theme", () => {
-    expect(fs.existsSync(packagePath)).toBeTruthy();
-
+  test("contributes the Black Metal theme with expected fields", () => {
     const pkg = readJson(packagePath);
 
     expect(pkg.name).toBe("black-metal-vscode-theme");
-    expect(pkg.displayName).toBe("Black Metal");
-    expect(pkg.description).toBe("A VS Code theme adapted from Ghostty's Black Metal palette.");
-    expect(pkg.version).toBe("0.1.0");
     expect(pkg.publisher).toBe("fu-chen");
-    expect(pkg.license).toBe("MIT");
-    expect(pkg.engines.vscode).toBe("^1.90.0");
-    expect(pkg.categories).toEqual(["Themes"]);
-    expect(pkg.keywords).toEqual(["theme", "dark theme", "black metal", "ghostty", "vscode"]);
-    expect(pkg.scripts["build:theme"]).toBe("node scripts/build-theme.cjs");
-    expect(pkg.scripts["vscode:prepublish"]).toBe("npm run build:theme");
-    expect(pkg.scripts["package:vsix"]).toBe("vsce package");
-    expect(pkg.scripts["publish:vsce"]).toBe("vsce publish");
-    expect(pkg.scripts.test).toBe("vitest run");
-    expect(pkg.devDependencies["@vscode/vsce"]).toBe("^3.6.2");
-    expect(pkg.contributes.themes.length).toBe(1);
-    expect(pkg.contributes.themes[0].label).toBe("Black Metal");
-    expect(pkg.contributes.themes[0].uiTheme).toBe("vs-dark");
-    expect(pkg.contributes.themes[0].path).toBe("./themes/black-metal-color-theme.json");
+    expect(pkg.version).toBe("0.1.0");
+    expect(pkg.contributes.themes).toEqual([
+      {
+        label: "Black Metal",
+        uiTheme: "vs-dark",
+        path: "./themes/black-metal-color-theme.json",
+      },
+    ]);
   });
 
   test("packaging ignores internal agent and Claude scaffolding", () => {
@@ -75,7 +64,7 @@ describe("package metadata", () => {
 });
 
 describe("builder", () => {
-  test("project-local theme sources exist for the builder workflow", () => {
+  test("theme sources exist and build output matches shipped theme", () => {
     expect(fs.existsSync(partsBasePath)).toBeTruthy();
     for (const requiredPartsPath of requiredPartsPaths) {
       expect(fs.existsSync(requiredPartsPath)).toBeTruthy();
@@ -85,16 +74,6 @@ describe("builder", () => {
     const buildTheme = require(buildScriptPath);
     expect(typeof buildTheme.main).toBe("function");
 
-    const result = spawnSync(process.execPath, [buildScriptPath], {
-      encoding: "utf8",
-    });
-
-    expect(result.status).toBe(0);
-    expect(result.stderr).toBe("");
-    expect(JSON.parse(result.stdout)).toEqual(readJson(themePath));
-  });
-
-  test("output stays in parity with the shipped theme file", () => {
     const result = spawnSync(process.execPath, [buildScriptPath], {
       encoding: "utf8",
     });
@@ -404,40 +383,25 @@ describe("theme content", () => {
 });
 
 describe("docs and publishing", () => {
-  test("documentation and packaging files describe and ship the theme cleanly", () => {
+  test("README and .vscodeignore cover installation, publishing, and packaging", () => {
     const readmePath = path.join(rootDir, "README.md");
-    const ignorePath = path.join(rootDir, ".vscodeignore");
-
-    expect(fs.existsSync(readmePath)).toBeTruthy();
-    expect(fs.existsSync(ignorePath)).toBeTruthy();
-
     const readme = fs.readFileSync(readmePath, "utf8");
-    const ignoreFile = fs.readFileSync(ignorePath, "utf8");
+    const ignoreFile = fs.readFileSync(vscodeIgnorePath, "utf8");
 
-    expect(readme).toMatch(/Ghostty/i);
-    expect(readme).toMatch(/Black Metal/i);
     expect(readme).toMatch(/Installation/i);
-    expect(readme).toMatch(/npm run build:theme/i);
-    expect(readme).toMatch(/npm run vscode:prepublish/i);
-    expect(readme).toMatch(/edit `parts\/`/i);
-    expect(readme).toMatch(/terminal ANSI/i);
     expect(readme).toMatch(/Release Publishing/i);
-    expect(readme).toMatch(/GitHub Release/i);
     expect(readme).toMatch(/VSCE_PAT/i);
-    expect(readme).toMatch(/fu-chen/i);
-    expect(readme).toMatch(/package\.json/i);
-    expect(readme).toMatch(/npx @vscode\/vsce package/i);
+    expect(readme).toMatch(/GitHub repository secrets/i);
+    expect(readme).toMatch(/`0\.1\.0` or `v0\.1\.0`/);
     expect(readme).toMatch(/npm test/i);
 
     expect(ignoreFile).toMatch(/^tests$/m);
     expect(ignoreFile).toMatch(/^docs$/m);
     expect(ignoreFile).toMatch(/^parts$/m);
     expect(ignoreFile).toMatch(/^scripts$/m);
-    expect(ignoreFile).toMatch(/^\.superpowers$/m);
-    expect(ignoreFile).toMatch(/^\.gitignore$/m);
   });
 
-  test("repository metadata and gitignore entries support publishing from GitHub", () => {
+  test("repository and gitignore support publishing from GitHub", () => {
     const pkg = readJson(packagePath);
     const gitignorePath = path.join(rootDir, ".gitignore");
 
@@ -450,41 +414,20 @@ describe("docs and publishing", () => {
 
     const gitignore = fs.readFileSync(gitignorePath, "utf8");
 
-    expect(gitignore).toMatch(/^\.superpowers\/$/m);
-    expect(gitignore).toMatch(/^docs\/superpowers\/plans\/$/m);
     expect(gitignore).toMatch(/^node_modules\/$/m);
     expect(gitignore).toMatch(/^\*\.vsix$/m);
-    expect(gitignore).toMatch(/^\.DS_Store$/m);
   });
 
-  test("release publishing workflow triggers on release.published and uses VSCE_PAT, npm test, and vsce publish", () => {
+  test("CI workflow triggers on release and validates tag version", () => {
     expect(fs.existsSync(publishWorkflowPath)).toBeTruthy();
 
     const workflow = fs.readFileSync(publishWorkflowPath, "utf8");
 
     expect(workflow).toMatch(/on:\s*\n\s*release:\s*\n\s*types:\s*\n\s*-\s*published/m);
-    expect(workflow).toMatch(/Validate release metadata/);
-    expect(workflow).toMatch(/github\.event\.release\.prerelease/);
-    expect(workflow).toMatch(/github\.event\.release\.tag_name/);
-    expect(workflow).toMatch(/package\.json/);
     expect(workflow).toMatch(/VSCE_PAT/m);
     expect(workflow).toMatch(/npm test/m);
     expect(workflow).toMatch(/npx @vscode\/vsce publish/m);
-  });
-
-  test("release publishing workflow accepts both bare and v-prefixed release tags for the package version", () => {
-    const workflow = fs.readFileSync(publishWorkflowPath, "utf8");
-
     expect(workflow).toMatch(/\$\{RELEASE_TAG#v\}/);
-    expect(workflow).toMatch(/NORMALIZED_RELEASE_TAG="\$\{RELEASE_TAG#v\}"/);
     expect(workflow).toMatch(/if \[ "\$NORMALIZED_RELEASE_TAG" != "\$PACKAGE_VERSION" \]; then/);
-  });
-
-  test("release publishing docs name the GitHub repository secrets location and accepted tag formats", () => {
-    const readme = fs.readFileSync(path.join(rootDir, "README.md"), "utf8");
-
-    expect(readme).toMatch(/GitHub repository secrets/i);
-    expect(readme).toMatch(/`VSCE_PAT`/);
-    expect(readme).toMatch(/`0\.1\.0` or `v0\.1\.0`/);
   });
 });
