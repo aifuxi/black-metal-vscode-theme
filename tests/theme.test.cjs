@@ -46,7 +46,7 @@ test('package metadata contributes the Black Metal theme', () => {
   assert.equal(pkg.displayName, 'Black Metal');
   assert.equal(pkg.description, "A VS Code theme adapted from Ghostty's Black Metal palette.");
   assert.equal(pkg.version, '0.1.0');
-  assert.equal(pkg.publisher, 'BlackMetalTheme');
+  assert.equal(pkg.publisher, 'fu-chen');
   assert.equal(pkg.license, 'MIT');
   assert.equal(pkg.engines.vscode, '^1.90.0');
   assert.deepEqual(pkg.categories, ['Themes']);
@@ -410,7 +410,7 @@ test('documentation and packaging files describe and ship the theme cleanly', ()
   assert.match(readme, /Release Publishing/i);
   assert.match(readme, /GitHub Release/i);
   assert.match(readme, /VSCE_PAT/i);
-  assert.match(readme, /BlackMetalTheme/i);
+  assert.match(readme, /fu-chen/i);
   assert.match(readme, /package\.json/i);
   assert.match(readme, /npx @vscode\/vsce package/i);
   assert.match(readme, /npm test/i);
