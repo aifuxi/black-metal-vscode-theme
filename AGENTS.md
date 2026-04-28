@@ -31,6 +31,9 @@ docs/superpowers/specs/        # Design specifications
 .github/workflows/
   publish-marketplace.yml      # Publishes to VS Code Marketplace on GitHub Release
 .agents/skills/vscode-theme/   # Agent skill scaffolding (SKILL.md + template + theme-builder.js)
+.oxlintrc.json                 # Oxlint configuration
+.oxfmtrc.json                  # Oxfmt formatter configuration
+.vscode/settings.json          # VSCode editor settings for oxc integration
 ```
 
 ## Key Commands
@@ -38,6 +41,10 @@ docs/superpowers/specs/        # Design specifications
 | Command                | What it does                                                                   |
 | ---------------------- | ------------------------------------------------------------------------------ |
 | `npm run build:theme`  | Merge `parts/` into `themes/black-metal-color-theme.json`                      |
+| `npm run lint`         | Run oxlint to check for code issues                                            |
+| `npm run lint:fix`     | Run oxlint with auto-fix                                                       |
+| `npm run fmt`          | Format code with oxfmt                                                         |
+| `npm run fmt:check`    | Check formatting without writing (for CI)                                      |
 | `npm test`             | Run full test suite (metadata, build integrity, palette contract)              |
 | `npm run package:vsix` | Build `.vsix` package (runs `vscode:prepublish` → `build:theme` automatically) |
 | `npm run publish:vsce` | Publish to VS Code Marketplace (requires `VSCE_PAT` env var)                   |
@@ -68,6 +75,15 @@ The build script:
 3. Reads `parts/tokens.json` for `tokenColors`
 4. Reads `parts/semantic.json` for `semanticTokenColors`
 5. Writes combined JSON to `themes/black-metal-color-theme.json`
+
+## Linting and Formatting
+
+- **Linter**: oxlint (Rust-based, 50-100x faster than ESLint)
+- **Formatter**: oxfmt (Rust-based, 30x faster than Prettier)
+- **Config files**: `.oxlintrc.json`, `.oxfmtrc.json`
+- **VSCode integration**: `.vscode/settings.json` enables format on save and lint fixes
+
+Run `npm run lint` and `npm run fmt` before committing. The linter and formatter ignore `node_modules/`, `themes/`, `parts/`, `.worktrees/`, `.agents/`, `.claude/` directories.
 
 ## Palette Reference
 
