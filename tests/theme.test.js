@@ -75,6 +75,7 @@ describe("release automation", () => {
     expect(typeof releaseLocal.formatChangelogEntry).toBe("function");
     expect(typeof releaseLocal.insertChangelog).toBe("function");
     expect(typeof releaseLocal.parseReleaseType).toBe("function");
+    expect(typeof releaseLocal.runCommand).toBe("function");
   });
 
   test("bumps patch, minor, and major versions", () => {
@@ -140,6 +141,12 @@ describe("release automation", () => {
         "",
       ].join("\n"),
     );
+  });
+
+  test("handles inherited stdio commands without stdout", () => {
+    const { runCommand } = require(releaseScriptPath);
+
+    expect(runCommand(process.execPath, ["-e", ""], { stdio: "inherit" })).toBe("");
   });
 });
 

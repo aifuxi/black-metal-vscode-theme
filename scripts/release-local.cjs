@@ -55,7 +55,7 @@ function runCommand(command, args, options = {}) {
     throw new Error(`${command} ${args.join(" ")} failed${details ? `:\n${details}` : ""}`);
   }
 
-  return result.stdout.trim();
+  return typeof result.stdout === "string" ? result.stdout.trim() : "";
 }
 
 function ensureCleanWorkingTree() {
@@ -204,4 +204,5 @@ module.exports = {
   insertChangelog,
   parseReleaseType,
   parseSemverTag,
+  runCommand,
 };
