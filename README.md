@@ -12,10 +12,28 @@ A VS Code workbench theme adapted from Ghostty's Black Metal palette.
 
 ## Installation
 
+### Marketplace
+
+1. Open the Extensions view in VS Code.
+2. Search for `Black Metal`.
+3. Install the theme published by `fu-chen`.
+4. Open Command Palette and choose `Preferences: Color Theme`.
+5. Select `Black Metal`.
+
+You can also install it from the command line:
+
+```bash
+code --install-extension fu-chen.black-metal-vscode-theme
+```
+
+### Local Development
+
 1. Clone this repository.
-2. From the repository root, run `code --extensionDevelopmentPath "$(pwd)"`.
-3. In the Extension Development Host window, open Command Palette and choose `Preferences: Color Theme`.
-4. Select `Black Metal`.
+2. Install dependencies with `npm install`.
+3. Run `npm run build:theme` to regenerate the theme from `parts/`.
+4. From the repository root, run `code --extensionDevelopmentPath "$(pwd)"`.
+5. In the Extension Development Host window, open Command Palette and choose `Preferences: Color Theme`.
+6. Select `Black Metal`.
 
 ## Development
 
@@ -26,9 +44,12 @@ A VS Code workbench theme adapted from Ghostty's Black Metal palette.
 
 ## Release Publishing
 
+- Run `npm run release:local -- [patch|minor|major]` to bump the local version, update this changelog, validate the extension, and build a `.vsix` package. The default release type is `patch`.
 - Create a GitHub Release from the `package.json` version, using either `0.1.0` or `v0.1.0`.
-- Run `npm test` and `npx @vscode/vsce package` before publishing.
+- Run `npm test` and `npm run package:vsix` before publishing if you are not using `release:local`.
 - Set the `VSCE_PAT` secret in the GitHub repository secrets for `fu-chen` so `npx @vscode/vsce publish` can upload the extension.
+
+## Changelog
 
 ## Palette Source
 

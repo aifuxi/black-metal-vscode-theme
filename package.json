@@ -30,6 +30,7 @@
     "fmt:check": "oxfmt --check",
     "package:vsix": "vsce package",
     "publish:vsce": "vsce publish",
+    "release:local": "node scripts/release-local.cjs",
     "vscode:prepublish": "npm run build:theme",
     "test": "vitest run",
     "test:watch": "vitest"

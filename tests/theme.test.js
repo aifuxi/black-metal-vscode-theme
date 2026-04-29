@@ -17,6 +17,7 @@ const requiredPartsPaths = [
   path.join(rootDir, "parts", "semantic.json"),
 ];
 const buildScriptPath = path.join(rootDir, "scripts", "build-theme.cjs");
+const releaseScriptPath = path.join(rootDir, "scripts", "release-local.cjs");
 const themePath = path.join(rootDir, "themes", "black-metal-color-theme.json");
 const publishWorkflowPath = path.join(rootDir, ".github", "workflows", "publish-marketplace.yml");
 
@@ -45,6 +46,7 @@ describe("package metadata", () => {
     expect(pkg.name).toBe("black-metal-vscode-theme");
     expect(pkg.publisher).toBe("fu-chen");
     expect(pkg.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(pkg.scripts["release:local"]).toBe("node scripts/release-local.cjs");
     expect(pkg.contributes.themes).toEqual([
       {
         label: "Black Metal",
@@ -60,6 +62,84 @@ describe("package metadata", () => {
     expect(vscodeIgnore).toMatch(/^\.agents$/m);
     expect(vscodeIgnore).toMatch(/^\.claude$/m);
     expect(vscodeIgnore).toMatch(/^skills-lock\.json$/m);
+  });
+});
+
+describe("release automation", () => {
+  test("release script exposes testable helpers", () => {
+    expect(fs.existsSync(releaseScriptPath)).toBeTruthy();
+
+    const releaseLocal = require(releaseScriptPath);
+
+    expect(typeof releaseLocal.bumpVersion).toBe("function");
+    expect(typeof releaseLocal.formatChangelogEntry).toBe("function");
+    expect(typeof releaseLocal.insertChangelog).toBe("function");
+    expect(typeof releaseLocal.parseReleaseType).toBe("function");
+  });
+
+  test("bumps patch, minor, and major versions", () => {
+    const { bumpVersion, parseReleaseType } = require(releaseScriptPath);
+
+    expect(parseReleaseType([])).toBe("patch");
+    expect(parseReleaseType(["minor"])).toBe("minor");
+    expect(bumpVersion("0.1.0", "patch")).toBe("0.1.1");
+    expect(bumpVersion("0.1.0", "minor")).toBe("0.2.0");
+    expect(bumpVersion("0.1.0", "major")).toBe("1.0.0");
+  });
+
+  test("inserts changelog entries at the top of an existing changelog", () => {
+    const { formatChangelogEntry, insertChangelog } = require(releaseScriptPath);
+    const entry = formatChangelogEntry("0.1.1", "2026-04-29", [
+      {
+        hash: "abc1234",
+        subject: "fix: improve workbench selection contrast",
+      },
+    ]);
+    const readme = [
+      "# Black Metal",
+      "",
+      "## Changelog",
+      "",
+      "### 0.1.0 - 2026-04-18",
+      "",
+      "- Initial release.",
+      "",
+    ].join("\n");
+
+    expect(insertChangelog(readme, entry)).toContain(
+      [
+        "## Changelog",
+        "",
+        "### 0.1.1 - 2026-04-29",
+        "",
+        "- fix: improve workbench selection contrast (`abc1234`)",
+        "",
+        "### 0.1.0 - 2026-04-18",
+      ].join("\n"),
+    );
+  });
+
+  test("adds changelog before palette source when README has none", () => {
+    const { formatChangelogEntry, insertChangelog } = require(releaseScriptPath);
+    const entry = formatChangelogEntry("0.1.1", "2026-04-29", []);
+    const readme = ["# Black Metal", "", "## Palette Source", "", "Palette notes.", ""].join("\n");
+
+    expect(insertChangelog(readme, entry)).toBe(
+      [
+        "# Black Metal",
+        "",
+        "## Changelog",
+        "",
+        "### 0.1.1 - 2026-04-29",
+        "",
+        "- No code changes since previous release.",
+        "",
+        "## Palette Source",
+        "",
+        "Palette notes.",
+        "",
+      ].join("\n"),
+    );
   });
 });
 
